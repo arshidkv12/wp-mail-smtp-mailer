@@ -7,49 +7,6 @@ if (!defined( 'ABSPATH')) exit;
 */
 class WPMS_encryption{
 	
-	public $dir_path;
-
-	function __construct($dir_path){	
-
-		$this->dir_path = $dir_path;
-	
-	}
-
-
-	public function generate_salt(){
-
-		$file = $this->dir_path.'/salt.php';
-
-
-		if ( file_exists($file) == false ){
-			
-
-			$rand   = rand(1,1000); 
-			$rand  .= date('Y-m-d h:i:sa');
-			$data   = '<?php
-				if (!defined( "ABSPATH")) exit;
-				//escape from sql hacking 
-				$WPMS_salt = "'.md5($rand).'";
-			?>';
-			$handle = fopen($file, 'w');
-			fwrite($handle, $data);
-			fclose($handle);
-
-		}
-
-
-	}
-
-
-	public function delete_salt(){
-
-		$file = $this->dir_path.'/salt.php';
-
-		if ( file_exists($file) ){
-
-			unlink($file);
-		}
-	}
 
  
 

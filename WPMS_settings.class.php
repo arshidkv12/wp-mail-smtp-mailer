@@ -33,18 +33,17 @@ class WPMS_settings
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'wp-mail-smtp-mailer' ) );
 		}
 
-		$encryption = new WPMS_encryption($this->dir_path);
+		$encryption = new WPMS_encryption();
 
-		$nonce 		= wp_create_nonce( 'WPMS-mail-nonce' );
 
 		if( isset($_POST['to_email']) ){
 
 			$nonce_vrfy = $_REQUEST['_wpnonce'];
             if ( wp_verify_nonce( $nonce_vrfy, 'WPMS-mail-nonce') ){
 
-            	$to      = esc_sql( $_POST['to_email'] );
+            	$to      = sanitize_email( $_POST['to_email'] );
 				$subject = 'WP Mail Smtp Mailer Test Mail';
-				$body    = esc_sql( $_POST['email_body'] );
+				$body    = sanitize_text_field( $_POST['email_body'] );
 				$headers = array('Content-Type: text/html; charset=UTF-8');
 				 
 				
@@ -82,47 +81,35 @@ class WPMS_settings
 					 
 					$host 		 = esc_sql($_POST['host']);
 					$port 		 = esc_sql($_POST['port']);
-					$username 	 = esc_sql($_POST['username']);
+					$username 	 = sanitize_email($_POST['username']);
 					$password 	 = esc_sql($_POST['password']);
 					$SMTPSecure  = esc_sql($_POST['SMTPSecure']);
-					$From  		 = esc_sql($_POST['From']);
+					$From  		 = sanitize_email($_POST['From']);
 					$FromName  	 = esc_sql($_POST['FromName']);
 					$encrypt     = '1';
 
-					$file = $this->dir_path.'/salt.php';
 
-					if ( file_exists($file) ) {
+					$host 		 = $encryption->data_encrypt($host,SECURE_AUTH_KEY);
+					$username 	 = $encryption->data_encrypt($username,SECURE_AUTH_KEY);
+					$password 	 = $encryption->data_encrypt($password,SECURE_AUTH_KEY);
+					
+					$data = array( 'host' => $host,
+					 'port'=> $port, 'username' => $username, 'password' => $password,
+					 'SMTPSecure' => $SMTPSecure, 'From' => $From, 'FromName' => $FromName,
+					 'encrypt' => $encrypt 
+					); 
 
-						require_once $file;
-
-
-						$host 		 = $encryption->data_encrypt($host,$WPMS_salt);
-						$username 	 = $encryption->data_encrypt($username,$WPMS_salt);
-						$password 	 = $encryption->data_encrypt($password,$WPMS_salt);
-						
-						$data = array( 'host' => $host,
-						 'port'=> $port, 'username' => $username, 'password' => $password,
-						 'SMTPSecure' => $SMTPSecure, 'From' => $From, 'FromName' => $FromName,
-						 'encrypt' => $encrypt 
-						); 
-
-						update_option('WPMS_mail_data',$data);
-
-					}else{
-
-						echo "<br/><div class='notice notice-error'><p>Change plugin directory permissions to 755 and deactivate plugin then activate it again ..!</p></div>";
-					}
-
+					update_option('WPMS_mail_data',$data);
 
 
 				}else{
  
 					$host 		 = esc_sql($_POST['host']);
 					$port 		 = esc_sql($_POST['port']);
-					$username 	 = esc_sql($_POST['username']);
+					$username 	 = sanitize_email($_POST['username']);
 					$password 	 = esc_sql($_POST['password']);
 					$SMTPSecure  = esc_sql($_POST['SMTPSecure']);
-					$From  		 = esc_sql($_POST['From']);
+					$From  		 = sanitize_email($_POST['From']);
 					$FromName  	 = esc_sql($_POST['FromName']);
 					$encrypt     = '0';
 
@@ -152,7 +139,7 @@ class WPMS_settings
 
 		}
 
-
+		$nonce 	= wp_create_nonce( 'WPMS-mail-nonce' );
 
 		?>
 

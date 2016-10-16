@@ -80,6 +80,9 @@ jQuery(document).ready( function($){
 			$('.host-info').html("Please go to <a href='https://security.google.com/settings/security/apppasswords'\
 				target='_blank'> Google Account</a> and create app password.");
 
+			$('select option[value=tls]').attr('selected','selected');
+			$('[name="port"]').val('587');
+
 		}
 
 	});

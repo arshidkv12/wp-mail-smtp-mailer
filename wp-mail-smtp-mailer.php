@@ -16,9 +16,6 @@ require_once 'encryption.class.php';
 function WPMS_plugin_activate() {
 
 	$dir_path   = plugin_dir_path( __FILE__ );
-	$encryption = new WPMS_encryption($dir_path);
-
-	$encryption->generate_salt();
     
     add_option( 'WPMS_mail_data','' , '', 'yes' );
 
@@ -28,11 +25,6 @@ register_activation_hook( __FILE__, 'WPMS_plugin_activate' );
 //Plugin deactivation 
 function WPMS_plugin_deactivation() {
 	
-	$dir_path   = plugin_dir_path( __FILE__ );
-	$encryption = new WPMS_encryption($dir_path);
-
-	$encryption->delete_salt();
-
 	delete_option( 'WPMS_mail_data' );
 	delete_option( 'WPMS_mail_flag' );
 	 
@@ -75,15 +67,11 @@ function WPMS_php_mailer( $phpmailer ) {
 
 	if ($option['encrypt'] == '1'){
 
-		$dir_path    = plugin_dir_path( __FILE__ );
+		$encryption  = new WPMS_encryption();
 
-		require_once $dir_path. '/salt.php';
-
-		$encryption  = new WPMS_encryption($dir_path);
-
-		$option['host'] 	= $encryption->data_decrypt($option['host'], $WPMS_salt);
-		$option['username'] = $encryption->data_decrypt($option['username'], $WPMS_salt);
-		$option['password']	= $encryption->data_decrypt($option['password'], $WPMS_salt);
+		$option['host'] 	= $encryption->data_decrypt($option['host'], SECURE_AUTH_KEY);
+		$option['username'] = $encryption->data_decrypt($option['username'], SECURE_AUTH_KEY);
+		$option['password']	= $encryption->data_decrypt($option['password'], SECURE_AUTH_KEY);
 	}
 
     $phpmailer->isSMTP();     
