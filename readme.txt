@@ -6,6 +6,8 @@ Tested up to: 4.6
 Stable tag: 1.0.1
 License: GPLv2
 
+Website: http://htmlcontactform.net/
+
 Reconfigures the wp_mail() function to use SMTP instead of mail() function and add password encryption
   
 
